@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # GraphRAG Backend (assuming it exists)
+  graphrag-backend:
+    # This assumes you have a GraphRAG backend image
+    # Replace with your actual backend image and configuration
+    image: graphrag-backend:latest
+    container_name: graphrag-backend
+    ports:
+      - "9000:9000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Add volumes and other configuration as needed
+    # volumes:
+    #   - ./data:/app/data
+    #   - ./config:/app/config
+    networks:
+      - palletten-network
+
+  # Streamlit Frontend
+  palletten-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: palletten-ui
+    ports:
+      - "8503:8501"
+    env_file:
+      - .env
+    environment:
+      - API_BASE_URL=http://graphrag-backend:9000
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./documents:/app/documents:ro
+    depends_on:
+      graphrag-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - palletten-network
+
+networks:
+  palletten-network:
+    driver: bridge
+
+# Optional: Add volumes for data persistence
+# volumes:
+#   graphrag-data:
+#   graphrag-config:
