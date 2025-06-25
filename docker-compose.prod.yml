@@ -1,0 +1,33 @@
+services:
+  palletten-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: palletten-ui-prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - API_BASE_URL=http://host.docker.internal:9000
+      - PYTHONUNBUFFERED=1
+      - VIRTUAL_HOST=palettenweb.paperworx.ai
+      - VIRTUAL_PORT=8504
+      - LETSENCRYPT_HOST=palettenweb.paperworx.ai
+      - LETSENCRYPT_EMAIL=janning@aispezialisten.ai
+    volumes:
+      - ./documents:/app/documents:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - nginx-proxy
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8504/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  nginx-proxy:
+    external: true

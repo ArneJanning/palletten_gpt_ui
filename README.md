@@ -43,6 +43,18 @@ streamlit run app.py
 docker-compose up --build
 ```
 
+### Production (with nginx-proxy and LetsEncrypt)
+
+```bash
+# Start production deployment
+docker-compose -f docker-compose.prod.yml --env-file .env.prod up --build -d
+```
+
+**Requirements:**
+- Running nginx-proxy container
+- Running acme-companion container  
+- Domain pointing to server IP
+
 **Note**: You'll need to replace the `graphrag-backend` service in `docker-compose.yml` with your actual GraphRAG backend configuration.
 
 ## Configuration
@@ -101,9 +113,15 @@ docker run -p 8503:8501 -e API_BASE_URL=http://host.docker.internal:9000 pallett
 
 ## Access
 
+### Development
 - **Streamlit UI**: http://localhost:8503
 - **Backend API**: http://localhost:9000 (if using full stack)
 - **API Documentation**: http://localhost:9000/docs
+
+### Production
+- **Public URL**: https://palettenweb.paperworx.ai
+- **SSL**: Automatic LetsEncrypt certificate
+- **Email**: janning@aispezialisten.ai
 
 ## PDF Document Viewer
 
